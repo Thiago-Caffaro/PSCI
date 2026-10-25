@@ -1,0 +1,773 @@
+.admin-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(120deg, #232327, #1a1b1e);
+  border: 1px solid #41414a;
+  border-left: 3px solid var(--orange);
+  padding: 24px;
+  border-radius: 3px;
+}
+.admin-summary > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.admin-summary > div:first-child > svg {
+  color: var(--orange);
+}
+.admin-summary h2 {
+  font-size: 29px;
+  font-weight: 500;
+  margin-top: 5px;
+}
+.account-count {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.account-count > strong {
+  font: 500 42px/1 var(--display);
+  color: #bfc2cb;
+}
+.account-count > span {
+  font: 400 7px/1.8 var(--mono);
+  letter-spacing: 0.8px;
+  color: #9398a6;
+}
+.admin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid #393b45;
+  padding-bottom: 13px;
+  flex-wrap: wrap;
+}
+.admin-tabs > button[role='tab'] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  font: 400 9px var(--mono);
+  letter-spacing: 0.5px;
+  padding: 12px 0;
+  color: #929aaa;
+  position: relative;
+}
+.admin-tabs > button[aria-selected='true'] {
+  color: var(--orange);
+}
+.admin-tabs > button[aria-selected='true']:after {
+  content: '';
+  height: 2px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -14px;
+  background: var(--orange);
+}
+.new-account-button {
+  margin-left: auto;
+}
+.admin-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+.account-directory {
+  position: sticky;
+  top: 20px;
+  overflow: hidden;
+}
+.directory-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 16px;
+  color: #8e98a9;
+  gap: 8px;
+}
+.directory-heading > .eyebrow {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+.directory-heading > span:last-child {
+  font: 400 9px var(--mono);
+}
+.account-directory > .search-field {
+  margin: 0 12px 15px;
+  padding: 0 9px;
+}
+.account-directory > .search-field > input {
+  font-size: 12px;
+}
+.account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 7px 13px;
+  max-height: 550px;
+  overflow-y: auto;
+}
+.account-list-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  text-align: left;
+  padding: 13px 9px;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  min-width: 0;
+}
+.account-list-item:hover {
+  background: #ffffff03;
+}
+.account-list-item.selected {
+  border-color: #6b493b;
+  background: #ff68440b;
+}
+.avatar {
+  width: 31px;
+  height: 35px;
+  border: 1px solid #434751;
+  background: #282b32;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #b2b9c5;
+  font: 400 10px var(--mono);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.account-list-item > span:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+}
+.account-list-item strong {
+  font-size: 13px;
+  font-weight: 500;
+  display: block;
+  color: #d0d4dc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-list-item small {
+  display: block;
+  font: 400 6px var(--mono);
+  letter-spacing: 0.3px;
+  color: #828e9f;
+  margin-top: 7px;
+}
+.account-list-item > .status-dot {
+  width: 4px;
+  height: 4px;
+}
+.account-directory > footer {
+  border-top: 1px solid #393d46;
+  padding: 15px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 6px var(--mono);
+  letter-spacing: 0.3px;
+  color: #8c98ab;
+}
+.directory-empty {
+  padding: 10px 15px;
+}
+.account-editor {
+  min-width: 0;
+}
+.editor-account-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+.editor-account-title .eyebrow {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.editor-account-title h2 {
+  font-size: 33px;
+  line-height: 1.2;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.account-editor fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-panel {
+  padding: 22px;
+}
+.form-panel > .panel-heading {
+  padding-bottom: 18px;
+  margin-bottom: 21px;
+  border-bottom: 1px solid #353b46;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.full-width {
+  grid-column: 1 / -1;
+}
+.admin-vitals {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 18px 20px;
+  background: #191c20;
+  border: 1px solid #3b414c;
+  border-radius: 3px;
+}
+.admin-vitals .field > .field-label {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+.admin-vitals input {
+  padding: 10px 12px;
+}
+.calculated-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-left: 15px;
+  border-left: 1px solid #3b414c;
+}
+.calculated-field > span {
+  font: 400 7px/1.6 var(--mono);
+  color: #9ca7b6;
+  letter-spacing: 0.4px;
+}
+.calculated-field > strong {
+  font: 500 32px/1 var(--display);
+}
+.admin-attributes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.admin-attribute > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 15px;
+  border-bottom: 1px solid #353b46;
+}
+.admin-attribute > header > svg {
+  color: #a6adbb;
+  flex-shrink: 0;
+}
+.admin-attribute h3 {
+  font-size: 22px;
+  font-weight: 500;
+}
+.base-input {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.base-input > span {
+  font: 400 6px var(--mono);
+  letter-spacing: 0.5px;
+  color: #949eaf;
+}
+.base-input > input {
+  width: 55px;
+  padding: 7px 4px 7px 8px;
+  color: #efb39b;
+  background: #211e1f;
+  border-color: #634b40;
+  font-size: 12px;
+}
+.admin-attribute > div {
+  padding: 6px 15px 12px;
+}
+.admin-skill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+}
+.admin-skill > span {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #acb6c6;
+}
+.admin-skill > input {
+  width: 63px;
+  flex-shrink: 0;
+  padding: 7px 5px 7px 10px;
+  font-size: 12px;
+  min-height: 31px;
+}
+.credentials-panel {
+  padding: 16px 20px;
+}
+.credentials-panel > summary {
+  display: flex;
+  justify-content: space-between;
+  font: 400 9px var(--mono);
+  color: #a0adbe;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+.credentials-panel > summary::marker {
+  content: '';
+}
+.credentials-panel[open] > .field {
+  margin-top: 20px;
+}
+.credentials-panel > summary > span {
+  color: var(--orange);
+}
+.credentials-panel[open] > summary > span {
+  transform: rotate(45deg);
+}
+.sticky-save {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  bottom: 15px;
+  border: 1px solid #50515b;
+  border-radius: 4px;
+  background: #24262aef;
+  backdrop-filter: blur(15px);
+  padding: 15px 18px;
+  z-index: 5;
+  box-shadow: 0 5px 25px #0005;
+}
+.sticky-save > span {
+  font: 400 7px/1.7 var(--mono);
+  color: #aab2bf;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.schema-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.schema-card {
+  padding: 20px;
+}
+.schema-card > .field > .field-label {
+  font-size: 8px;
+}
+.schema-card > .field > input {
+  font-family: var(--display);
+  font-size: 23px;
+  padding: 9px 11px;
+}
+.schema-skills {
+  padding: 11px 0;
+  margin: 9px 0 6px;
+  border-top: 1px solid #393e49;
+}
+.schema-skills > label {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin: 7px 0;
+}
+.schema-skills > label > span {
+  font: 400 7px var(--mono);
+  color: #7c899e;
+}
+.schema-skills input {
+  font-size: 12px;
+  padding: 9px;
+}
+.schema-card > .text-button {
+  font-size: 7px;
+  gap: 7px;
+  color: #adbaa9;
+}
+.page-stack > form fieldset > .section-heading {
+  margin-top: 27px;
+}
+.modal {
+  border: 1px solid #595964;
+  border-radius: 5px;
+  background: #1c1d22;
+  color: #e8e9ec;
+  width: calc(100% - 36px);
+  max-width: 465px;
+  padding: 0;
+  box-shadow: 0 25px 100px #0008;
+  max-height: calc(100svh - 40px);
+  overflow-y: auto;
+}
+.modal::backdrop {
+  background: #090a0dd9;
+  backdrop-filter: blur(6px);
+}
+.modal-inner {
+  padding: 27px 29px;
+}
+.modal-inner > .panel-heading {
+  padding-bottom: 19px;
+  border-bottom: 1px solid #3c424c;
+  margin-bottom: 22px;
+}
+.modal-inner > .panel-heading > .eyebrow {
+  font-size: 8px;
+}
+.modal-inner > h2 {
+  font-size: 36px;
+  line-height: 1.2;
+}
+.modal-inner > h2 > span {
+  color: var(--orange);
+}
+.modal-inner > .panel-description {
+  font-size: 13px;
+}
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+.modal .form-actions {
+  border-top: 1px solid #3b414c;
+  padding-top: 20px;
+  margin-top: 4px;
+}
+.modal .form-actions > .button {
+  flex: 1;
+}
+@media (max-width: 1200px) {
+  .admin-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 19px;
+  }
+  .admin-attribute > header {
+    padding: 12px;
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+  .admin-attribute h3 {
+    font-size: 21px;
+  }
+  .base-input {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .admin-attribute > div {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .schema-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 980px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .account-directory {
+    position: static;
+  }
+  .account-directory > .search-field {
+    margin-bottom: 12px;
+  }
+  .account-list {
+    flex-direction: row;
+    overflow-x: auto;
+    max-height: none;
+  }
+  .account-list-item {
+    min-width: 210px;
+    max-width: 240px;
+    flex-shrink: 0;
+  }
+  .directory-heading {
+    padding: 14px 16px;
+  }
+  .account-directory > footer {
+    padding: 12px;
+  }
+  .admin-attribute > header {
+    flex-wrap: nowrap;
+  }
+  .base-input {
+    width: auto;
+    margin-left: auto;
+  }
+  .admin-summary h2 {
+    font-size: 27px;
+  }
+  .sticky-save {
+    bottom: 15px;
+  }
+}
+@media (max-width: 700px) {
+  .admin-summary {
+    padding: 18px 15px;
+    gap: 15px;
+  }
+  .admin-summary > div:first-child {
+    gap: 11px;
+  }
+  .admin-summary > div:first-child > svg {
+    width: 20px;
+  }
+  .admin-summary .eyebrow {
+    font-size: 6px;
+    letter-spacing: 0.7px;
+  }
+  .admin-summary h2 {
+    font-size: 24px;
+    line-height: 1.1;
+  }
+  .account-count {
+    gap: 8px;
+  }
+  .account-count > strong {
+    font-size: 36px;
+  }
+  .account-count > span {
+    font-size: 5px;
+    letter-spacing: 0.5px;
+  }
+  .admin-tabs {
+    gap: 20px;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  .admin-tabs > button[role='tab'] {
+    font-size: 7px;
+    gap: 7px;
+  }
+  .admin-tabs > button[role='tab'] > svg {
+    width: 13px;
+  }
+  .admin-tabs > button[aria-selected='true']:after {
+    bottom: -16px;
+  }
+  .new-account-button {
+    margin-left: 0 !important;
+    font-size: 8px !important;
+    min-height: 35px !important;
+  }
+  .admin-tabs:has(.new-account-button) {
+    padding-top: 46px;
+  }
+  .admin-tabs .new-account-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .admin-layout {
+    gap: 22px;
+  }
+  .account-list-item {
+    min-width: 190px;
+  }
+  .editor-account-title h2 {
+    font-size: 32px;
+  }
+  .editor-account-title .pill {
+    font-size: 7px;
+  }
+  .form-panel {
+    padding: 18px 15px;
+  }
+  .form-panel > .panel-heading {
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+  .form-grid {
+    gap: 16px 13px;
+  }
+  .form-grid .field > .field-label {
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+  .form-grid input {
+    font-size: 14px;
+    padding: 11px;
+  }
+  .admin-vitals {
+    padding: 16px 13px;
+    gap: 10px;
+  }
+  .admin-vitals .field > .field-label {
+    font-size: 6px;
+    letter-spacing: 0.2px;
+  }
+  .admin-vitals input {
+    padding: 10px;
+    font-size: 13px;
+  }
+  .calculated-field {
+    padding-left: 10px;
+    gap: 12px;
+  }
+  .calculated-field > span {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+  .admin-attributes {
+    gap: 12px;
+  }
+  .admin-attribute > header {
+    flex-wrap: wrap;
+    padding: 13px 12px 10px;
+    gap: 6px;
+  }
+  .admin-attribute > header > svg {
+    width: 14px;
+  }
+  .admin-attribute h3 {
+    font-size: 21px;
+  }
+  .base-input {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 2px;
+  }
+  .base-input > input {
+    width: 60px;
+    min-height: 32px;
+  }
+  .base-input > span {
+    font-size: 6px;
+  }
+  .admin-attribute > div {
+    padding: 6px 12px 12px;
+  }
+  .admin-skill {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .admin-skill > span {
+    font-size: 11px;
+    flex: 1;
+    min-width: 48px;
+  }
+  .admin-skill > input {
+    width: 51px;
+    padding: 8px 4px 8px 7px;
+    font-size: 11px;
+  }
+  .credentials-panel {
+    padding: 16px;
+  }
+  .credentials-panel summary {
+    font-size: 8px;
+  }
+  .sticky-save {
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    padding: 12px;
+    gap: 10px;
+  }
+  .sticky-save > span {
+    font-size: 6px;
+    letter-spacing: 0.3px;
+    max-width: 105px;
+    gap: 6px;
+  }
+  .sticky-save .button {
+    font-size: 8px;
+    gap: 7px;
+    white-space: normal;
+    line-height: 1.5;
+    padding: 10px 13px;
+    min-height: 42px;
+  }
+  .sticky-save .button > svg {
+    width: 14px;
+  }
+  .schema-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .schema-card {
+    padding: 19px;
+  }
+  .schema-card > .field > .field-label {
+    font-size: 8px;
+  }
+  .schema-card > .field > input {
+    font-size: 24px;
+  }
+  .schema-skills input {
+    font-size: 14px;
+    min-height: 42px;
+  }
+  .schema-card > .text-button {
+    font-size: 9px;
+    min-height: 38px;
+  }
+  .modal-inner {
+    padding: 24px 21px;
+  }
+  .modal-inner > h2 {
+    font-size: 33px;
+  }
+  .modal .form-actions > .button {
+    font-size: 9px;
+  }
+  .modal .field > .field-label {
+    font-size: 8px;
+  }
+  .modal input {
+    font-size: 16px;
+  }
+  .account-editor .field > small {
+    font-size: 11px;
+  }
+}
+@media (max-width: 370px) {
+  .admin-summary h2 {
+    font-size: 22px;
+  }
+  .account-count > span {
+    display: none;
+  }
+  .admin-attribute h3 {
+    font-size: 19px;
+  }
+  .admin-attribute > div {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .admin-attribute > header {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .admin-skill > input {
+    width: 48px;
+  }
+  .admin-skill > span {
+    font-size: 10px;
+  }
+  .admin-vitals {
+    gap: 8px;
+  }
+  .admin-vitals .field > .field-label {
+    font-size: 5px;
+  }
+  .admin-tabs > button[role='tab'] {
+    font-size: 6px;
+    gap: 5px;
+  }
+}
