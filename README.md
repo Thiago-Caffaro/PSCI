@@ -38,9 +38,12 @@ As contas são criadas somente na primeira inicialização de um banco vazio. O 
 - Painel de comando com edição de fichas individuais.
 - Diretrizes compartilhadas: operação, setor, comunicado, nomes dos atributos e perícias. É possível acrescentar perícias preservando os valores existentes.
 - Atualização das telas conectadas por **Server-Sent Events (SSE)**, com reconexão automática.
-- Diário e equipamento com salvamento explícito.
-- Busca de atributos e perícias.
-- Foto no canto superior direito, com retângulo fixo **4:5**: 42 × 52 px no desktop e 36 × 45 px no celular; a imagem interna é preparada em 240 × 300 px.
+- Tablet com duas faces e virada vertical de 180° pelo botão triangular laranja. A frente reúne identidade, recursos e uma grade de seis atributos; o verso reúne diário, equipamentos e habilidades livres.
+- Contorno assimétrico seguindo o esboço: o módulo superior esquerdo do retrato corresponde ao módulo inferior esquerdo do NIMPH no verso.
+- Diário, equipamentos e habilidades com rolagem interna e salvamento explícito. Virar o tablet ou abrir as configurações preserva a edição e a posição de leitura. Rascunhos também ficam no `sessionStorage` até serem salvos.
+- Toque em um atributo da grade para abrir uma leitura ampliada com todas as perícias.
+- Retrato no módulo superior esquerdo da frente, em um retângulo com dimensões proporcionais ao tablet. A imagem enviada continua sendo preparada em 240 × 300 px.
+- O retrato e a visualização NIMPH degradam visualmente conforme a proporção de HP: saturação reduzida, ruído e falhas de imagem. Esses efeitos não alteram atributos, textos ou regras.
 - Upload de JPG, PNG ou WebP de até 8 MB. O navegador enquadra e converte o retrato para JPEG em base64; a API salva e devolve essa mesma representação no JSON. Jogador e comando podem alterar ou remover a foto. Não há serviço externo para imagens.
 - Preferência local de efeitos, scanlines, varredura e interferências discretas; respeito a `prefers-reduced-motion`.
 - Fontes distribuídas junto do aplicativo, sem depender de Google Fonts ou CDN.
@@ -71,7 +74,9 @@ A última ficha recebida também fica no cache local. Quando a API está indispo
 
 ```text
 src/
-  App.jsx              # Login, navegação, ficha, diário e terminal
+  App.jsx              # Login, sessão e acesso a configurações/comando
+  Tablet.jsx           # Duas faces, moldura SVG, recursos e registros
+  tablet.css           # Layout físico responsivo e animação de virada
   Admin.jsx            # Contas, fichas e configurações compartilhadas
   PhotoEditor.jsx      # Conversão e envio de foto base64
   components.jsx       # Identidade visual, esquema da unidade e atributos
@@ -86,7 +91,9 @@ test/api.test.js        # Integração da API e persistência
 e2e/terminal.spec.js    # Fluxos reais de navegador e sincronização
 ```
 
-A interface representa o **conteúdo da tela do tablet**. A moldura externa poderá ser acrescentada quando o asset estiver disponível; nenhum arquivo de moldura foi presumido nesta versão. A visualização estrutural da Nikke é um SVG da interface, não um retrato de personagem canônico.
+A moldura externa é um **placeholder SVG com superfícies planas e riscos leves**, implementado pelo componente `Housing` de `src/Tablet.jsx`. O mesmo contorno é espelhado verticalmente para o verso. `PortraitPlaceholder` e `NeuralPlaceholder` são imagens provisórias em SVG, substituíveis pelos assets finais. Texturas auxiliares simples ficam em `public/placeholders/`. A interface principal não usa gradientes decorativos.
+
+A transição usa `rotateX(-180deg)` com faces separadas e a face inativa marcada como `inert`. O foco passa para o botão de retorno após a virada. A opção de efeitos reduzidos e `prefers-reduced-motion` desativam o movimento, mantendo ambas as faces acessíveis. Em telas pequenas a grade resume a leitura; o toque em cada atributo permite consultar os detalhes em tamanho maior.
 
 ## Verificações
 

@@ -119,6 +119,7 @@ export function createCharacter(serial = 'PSCI-0001') {
     vitals: { hp: 20, energy: 5 },
     notes: '',
     equipment: '',
+    abilities: '',
   };
 }
 

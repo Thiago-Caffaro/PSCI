@@ -1,41 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Activity,
   ArrowRight,
-  ArrowUpRight,
-  BookOpen,
   Check,
   ChevronRight,
   CircleHelp,
   Command,
   Copy,
-  Crosshair,
   Eye,
   EyeOff,
   Fingerprint,
   LogOut,
   Radio,
-  RefreshCw,
-  Save,
-  Search,
   Settings2,
   ShieldCheck,
   Signal,
-  SlidersHorizontal,
-  Terminal,
-  Users,
   WifiOff,
   X,
 } from 'lucide-react';
-import {
-  Brand,
-  UnitSchematic,
-  SectionHeading,
-  AttributeCard,
-  Vitals,
-  Field,
-  EmptyState,
-} from './components.jsx';
+import { Brand, UnitSchematic, SectionHeading, Field } from './components.jsx';
 import {
   cacheSnapshot,
   clearSession,
@@ -47,13 +29,7 @@ import {
 } from './api.js';
 import Admin from './Admin.jsx';
 import PhotoEditor from './PhotoEditor.jsx';
-
-const NAVIGATION = [
-  { id: 'overview', label: 'Minha ficha', mobile: 'Ficha', icon: Fingerprint },
-  { id: 'attributes', label: 'Atributos', mobile: 'Atributos', icon: SlidersHorizontal },
-  { id: 'journal', label: 'Diário de campo', mobile: 'Diário', icon: BookOpen },
-  { id: 'system', label: 'Meu terminal', mobile: 'Terminal', icon: Settings2 },
-];
+import Tablet from './Tablet.jsx';
 
 function Login({ onLogin, notify }) {
   const [username, setUsername] = useState('');
@@ -230,176 +206,6 @@ function Login({ onLogin, notify }) {
   );
 }
 
-function Identity({ character, username }) {
-  return (
-    <section className="identity-card">
-      <div className="identity-info">
-        <div className="eyebrow">
-          <span className="status-dot" /> IDENTIDADE OPERACIONAL{' '}
-          <span className="identity-revision">REV. 01</span>
-        </div>
-        <h1 className="glitch-title" data-text={character.name || 'UNIDADE 01'}>
-          {character.name || 'UNIDADE 01'}
-        </h1>
-        <p className="identity-subtitle">{character.designation || 'Unidade de expedição'}</p>
-        <div className="identity-fields">
-          <div>
-            <span>MODELO</span>
-            <strong>{character.model || 'Não definido'}</strong>
-          </div>
-          <div>
-            <span>AFILIAÇÃO</span>
-            <strong className="affiliation-mark">
-              <i />
-              {character.affiliation || 'Não definida'}
-            </strong>
-          </div>
-          <div>
-            <span>ESQUADRÃO</span>
-            <strong>{character.squad || 'Não designado'}</strong>
-          </div>
-        </div>
-        <div className="identity-bottom">
-          <span className="serial-badge">{character.serial}</span>
-          <span className="mono muted">@{username}</span>
-          <div className="barcode" aria-hidden="true" />
-        </div>
-      </div>
-      <div className="identity-visual">
-        <span className="visual-label">
-          UNIT SCAN <span>01 / NIKKE</span>
-        </span>
-        <span className="unit-watermark">N</span>
-        <UnitSchematic />
-        <div className="visual-bottom">
-          <span>PERSONAL LINK</span>
-          <Fingerprint size={16} />
-          <span>REGISTERED</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Journal({ character, onSave, busy, disabled, log }) {
-  const [notes, setNotes] = useState(character.notes);
-  const [equipment, setEquipment] = useState(character.equipment);
-  const baseline = useRef({ notes: character.notes, equipment: character.equipment });
-  const dirty = notes !== baseline.current.notes || equipment !== baseline.current.equipment;
-  useEffect(() => {
-    if (!dirty) {
-      setNotes(character.notes);
-      setEquipment(character.equipment);
-      baseline.current = { notes: character.notes, equipment: character.equipment };
-    }
-  }, [character.notes, character.equipment, dirty]);
-  async function save() {
-    if (await onSave({ notes, equipment })) {
-      baseline.current = { notes: notes.trim(), equipment: equipment.trim() };
-      setNotes(notes.trim());
-      setEquipment(equipment.trim());
-    }
-  }
-  return (
-    <div className="page-stack">
-      <SectionHeading code="03" title="Diário de campo">
-        <span className="pill">{dirty ? 'ALTERAÇÕES LOCAIS' : 'SINCRONIZADO'}</span>
-      </SectionHeading>
-      <div className="journal-grid">
-        <section className="panel editor-panel">
-          <div className="panel-heading">
-            <BookOpen size={18} />
-            <h3>Registro de expedição</h3>
-            <span className="mono muted">01</span>
-          </div>
-          <p className="panel-description">
-            Observações, objetivos e tudo o que vale trazer de volta.
-          </p>
-          <label className="sr-only" htmlFor="field-notes">
-            Anotações de campo
-          </label>
-          <textarea
-            id="field-notes"
-            maxLength={12000}
-            placeholder="Inicie seu registro de campo..."
-            value={notes}
-            disabled={disabled}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-          <div className="editor-bottom">
-            <span>{notes.length} / 12000</span>
-            <Radio size={14} />
-          </div>
-        </section>
-        <section className="panel editor-panel">
-          <div className="panel-heading">
-            <Crosshair size={18} />
-            <h3>Equipamento</h3>
-            <span className="mono muted">02</span>
-          </div>
-          <p className="panel-description">Armamento, suprimentos e itens levados à superfície.</p>
-          <label className="sr-only" htmlFor="field-equipment">
-            Equipamento de campo
-          </label>
-          <textarea
-            id="field-equipment"
-            maxLength={12000}
-            placeholder="Nenhum equipamento registrado..."
-            value={equipment}
-            disabled={disabled}
-            onChange={(e) => setEquipment(e.target.value)}
-          />
-          <div className="editor-bottom">
-            <span>{equipment.length} / 12000</span>
-            <Crosshair size={14} />
-          </div>
-        </section>
-      </div>
-      <div className="form-actions">
-        <span className="small-note">
-          {disabled
-            ? 'Consulta local. Reconecte-se para editar.'
-            : 'Registros ficam disponíveis neste terminal e no comando.'}
-        </span>
-        <button className="button primary" disabled={disabled || busy || !dirty} onClick={save}>
-          <Save size={16} />
-          {busy ? 'SALVANDO...' : 'SALVAR REGISTROS'}
-        </button>
-      </div>
-      <ActivityLog log={log} />
-    </div>
-  );
-}
-
-function ActivityLog({ log, limit = 6 }) {
-  return (
-    <section className="panel activity-panel">
-      <div className="panel-heading">
-        <Terminal size={17} />
-        <h3>Registro do sistema</h3>
-        <span className="pill">LOG</span>
-      </div>
-      <div className="activity-list">
-        {log.slice(0, limit).map((entry) => (
-          <div className="activity-entry" key={entry.id}>
-            <span className="log-dot" />
-            <time dateTime={entry.time}>
-              {new Date(entry.time).toLocaleString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </time>
-            <p>{entry.message}</p>
-            <span className="log-actor">{entry.actor}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function TerminalSettings({ effects, setEffects, snapshot, status, notify, logout, mutate, busy }) {
   async function copyId() {
     try {
@@ -499,6 +305,38 @@ function TerminalSettings({ effects, setEffects, snapshot, status, notify, logou
   );
 }
 
+function UtilityDialog({ page, onClose, children }) {
+  const dialog = useRef();
+  useEffect(() => {
+    dialog.current.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="utility-dialog"
+      aria-label={page === 'admin' ? 'Painel de comando' : 'Configurações do terminal'}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === dialog.current) onClose();
+      }}
+    >
+      <div className="utility-topline">
+        <span>
+          {page === 'admin' ? <Command size={17} /> : <Settings2 size={17} />}
+          {page === 'admin' ? 'PAINEL DE COMANDO' : 'CONFIGURAÇÕES DO TERMINAL'}
+        </span>
+        <button className="icon-button" aria-label="Voltar ao tablet" onClick={onClose}>
+          <X size={18} />
+        </button>
+      </div>
+      <div className="utility-content">{children}</div>
+    </dialog>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState(readSession);
   const [snapshot, setSnapshot] = useState(() => {
@@ -509,7 +347,6 @@ export default function App() {
   const [page, setPage] = useState('overview');
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [query, setQuery] = useState('');
   const [effects, changeEffects] = useState(() => {
     try {
       const saved = localStorage.getItem('psci-effects');
@@ -634,256 +471,65 @@ export default function App() {
         )}
       </div>
     );
-  const { user, settings, log } = snapshot;
-  const { character } = user;
-  const nav = [
-    ...NAVIGATION,
-    ...(user.role === 'admin'
-      ? [{ id: 'admin', label: 'Painel de comando', mobile: 'Comando', icon: Command }]
-      : []),
-  ];
-  const currentNav = nav.find((item) => item.id === page) || nav[0];
-  const filteredGroups = settings.schema
-    .map((group) => ({
-      ...group,
-      skills: group.label.toLowerCase().includes(query.toLowerCase())
-        ? group.skills
-        : group.skills.filter((skill) => skill.label.toLowerCase().includes(query.toLowerCase())),
-    }))
-    .filter(
-      (group) => group.skills.length || group.label.toLowerCase().includes(query.toLowerCase()),
-    );
+  const { user, settings } = snapshot;
   const offline = status !== 'online';
   return (
-    <div className="app-shell">
-      <aside className="side-rail">
-        <button
-          className="rail-brand"
-          aria-label="Abrir minha ficha"
-          onClick={() => setPage('overview')}
-        >
-          <Brand compact />
-        </button>
-        <div className="rail-divider" />
-        <nav aria-label="Navegação principal">
-          {nav.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              className={`rail-item ${page === id ? 'active' : ''}`}
-              title={label}
-              aria-label={label}
-              aria-current={page === id ? 'page' : undefined}
-              onClick={() => setPage(id)}
-            >
-              <Icon size={21} strokeWidth={1.5} />
-              <span className="rail-tooltip">{label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="rail-bottom">
-          <span className="vertical-label">PERSONAL LINK / V.01</span>
-          <button
-            className="rail-item"
-            title="Desconectar"
-            aria-label="Desconectar"
-            onClick={logout}
-          >
-            <LogOut size={19} />
-          </button>
-        </div>
-      </aside>
-      <div className="workspace">
-        <header className="app-header">
-          <Brand />
-          <div className="header-divider" />
-          <span className="header-context">
-            TERMINAL DE EXPEDIÇÃO <span>/</span> {character.serial}
+    <div className="psci-app">
+      <header className="device-header">
+        <Brand />
+        <span className="device-header-code">ARK NETWORK / PERSONAL FIELD TERMINAL</span>
+        <div className={`connection-state ${offline ? 'disconnected' : ''}`}>
+          {offline ? <WifiOff size={14} /> : <Signal size={15} />}
+          <span>
+            {status === 'connecting' ? 'CONECTANDO' : offline ? 'CONSULTA LOCAL' : 'VÍNCULO ATIVO'}
           </span>
-          <div className={`connection-state ${offline ? 'disconnected' : ''}`}>
-            {offline ? <WifiOff size={14} /> : <Signal size={15} />}
-            <span>
-              {status === 'connecting'
-                ? 'CONECTANDO'
-                : offline
-                  ? 'CONSULTA LOCAL'
-                  : 'VÍNCULO ATIVO'}
-            </span>
-          </div>
+        </div>
+        <nav className="device-header-actions" aria-label="Acesso ao terminal">
+          {user.role === 'admin' && (
+            <button
+              aria-label="Painel de comando"
+              title="Painel de comando"
+              onClick={() => setPage('admin')}
+            >
+              <Command size={18} />
+            </button>
+          )}
           <button
-            className="account-button"
             aria-label="Configurações da conta"
+            title="Configurações do terminal"
             onClick={() => setPage('system')}
           >
-            <span className="profile-photo header-photo">
-              {character.photo ? (
-                <img
-                  src={character.photo}
-                  alt={`Foto de perfil de ${character.name || user.username}`}
-                />
-              ) : (
-                <Fingerprint size={23} strokeWidth={1.2} />
-              )}
-            </span>
-            <ChevronRight size={13} />
+            <Settings2 size={18} />
           </button>
-        </header>
-        <main className="main-content">
-          <div className="page-topline">
-            <div className="breadcrumb">
-              ARCA <ChevronRight size={10} /> REDE PSCI <ChevronRight size={10} />
-              <span>{currentNav.label}</span>
-            </div>
-            <span className="session-code">SESSION / {user.id.slice(0, 8).toUpperCase()}</span>
-          </div>
-          <div className="page-title-row">
-            <div>
-              <div className="eyebrow orange">PERSONAL SISTEM CARD ID</div>
-              <h1>
-                {page === 'overview' ? 'Visão geral' : currentNav.label}
-                <span className="title-square" />
-              </h1>
-            </div>
-            <span className="access-badge">
-              <ShieldCheck size={15} />
-              {user.role === 'admin' ? 'ACESSO DE COMANDO' : 'ACESSO DE OPERADOR'}
+          <button aria-label="Desconectar" title="Desconectar" onClick={logout}>
+            <LogOut size={17} />
+          </button>
+        </nav>
+      </header>
+      <main className="device-stage">
+        {offline && (
+          <div className="offline-banner" role="status">
+            <WifiOff size={15} />
+            <span>
+              {status === 'connecting'
+                ? 'Estabelecendo vínculo com a Arca...'
+                : 'Sinal interrompido. Ficha disponível para consulta local. A reconexão é automática.'}
             </span>
           </div>
-          {offline && (
-            <div className="offline-banner" role="status">
-              <WifiOff size={16} />
-              <span>
-                {status === 'connecting'
-                  ? 'Estabelecendo conexão com o servidor...'
-                  : 'Sinal interrompido. Sua última ficha está disponível para consulta. A reconexão é automática.'}
-              </span>
-            </div>
-          )}
-          {page === 'overview' && (
-            <div className="page-stack">
-              <Identity character={character} username={user.username} />
-              <div className="operation-strip">
-                <Radio size={15} />
-                <span>{settings.operation || 'OPERAÇÃO NÃO DESIGNADA'}</span>
-                <i />
-                <span className="operation-sector">{settings.sector}</span>
-                <ArrowUpRight size={15} />
-              </div>
-              <div>
-                <SectionHeading code="01" title="Condição de campo">
-                  <span className="eyebrow muted">RECURSOS ATUAIS</span>
-                </SectionHeading>
-                <Vitals
-                  character={character}
-                  disabled={offline || busy}
-                  onChange={(id, value) => mutate('/me', { vitals: { [id]: value } }, '')}
-                />
-              </div>
-              <div>
-                <SectionHeading code="02" title="Matriz de atributos">
-                  <button className="text-button" onClick={() => setPage('attributes')}>
-                    EXPLORAR ATRIBUTOS <ArrowUpRight size={14} />
-                  </button>
-                </SectionHeading>
-                <div className="attributes-grid">
-                  {settings.schema.map((group, index) => (
-                    <AttributeCard
-                      group={group}
-                      character={character}
-                      index={index}
-                      key={group.id}
-                    />
-                  ))}
-                </div>
-                <p className="matrix-footnote">
-                  <span>—</span> Valor não definido <i /> Valores individuais, sem soma automática
-                  com o atributo base.
-                </p>
-              </div>
-              <div className="broadcast-strip">
-                <span className="broadcast-icon">
-                  <Radio size={21} />
-                </span>
-                <div>
-                  <span className="eyebrow orange">TRANSMISSÃO DO COMANDO</span>
-                  <p>{settings.broadcast || 'Nenhum comunicado ativo.'}</p>
-                </div>
-                <span className="transmission-bars" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                </span>
-              </div>
-            </div>
-          )}
-          {page === 'attributes' && (
-            <div className="page-stack">
-              <section className="attribute-intro">
-                <div>
-                  <span className="eyebrow orange">LEITURA DE CAPACIDADES</span>
-                  <h2>Conheça seus parâmetros.</h2>
-                  <p>Seis atributos. Uma identidade. Consulte as capacidades da sua unidade.</p>
-                </div>
-                <label className="search-field">
-                  <Search size={17} />
-                  <input
-                    aria-label="Buscar atributo ou perícia"
-                    placeholder="Buscar atributo ou perícia"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                  {query && (
-                    <button
-                      className="icon-button"
-                      aria-label="Limpar busca"
-                      onClick={() => setQuery('')}
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </label>
-              </section>
-              <div className="attributes-grid detailed">
-                {filteredGroups.map((group) => (
-                  <AttributeCard
-                    group={group}
-                    character={character}
-                    index={settings.schema.findIndex((g) => g.id === group.id)}
-                    key={group.id}
-                  />
-                ))}
-              </div>
-              {!filteredGroups.length && (
-                <EmptyState title="Nenhum parâmetro encontrado">
-                  Tente outro nome de atributo ou perícia.
-                </EmptyState>
-              )}
-              <section className="notice-panel">
-                <CircleHelp size={18} />
-                <div>
-                  <h3>Parâmetros definidos pelo comando</h3>
-                  <p>
-                    Os valores são os da sua ficha. Regras de testes e progressão ainda não estão
-                    configuradas.{' '}
-                    {character.intuitionNote && `Intuição: ${character.intuitionNote}.`}
-                  </p>
-                </div>
-              </section>
-            </div>
-          )}
-          {page === 'journal' && (
-            <Journal
-              key={user.id}
-              character={character}
-              onSave={(values) => mutate('/me', values, 'Registros de campo sincronizados.')}
-              busy={busy}
-              disabled={offline}
-              log={log}
-            />
-          )}
+        )}
+        <Tablet
+          key={user.id}
+          user={user}
+          settings={settings}
+          status={status}
+          effects={effects}
+          busy={busy}
+          mutate={mutate}
+          onOpenSettings={() => setPage('system')}
+        />
+      </main>
+      {page !== 'overview' && (
+        <UtilityDialog page={page} onClose={() => setPage('overview')}>
           {page === 'system' && (
             <TerminalSettings
               effects={effects}
@@ -907,33 +553,8 @@ export default function App() {
               offline={offline}
             />
           )}
-        </main>
-        <footer className="app-footer">
-          <span>
-            <span className={`status-dot ${offline ? 'warning' : ''}`} />
-            {offline ? 'CÓPIA LOCAL' : 'CANAL SINCRONIZADO'}
-          </span>
-          <span>
-            PSCI SYSTEMS <i /> RPG NIKKE / INTERFACE EXPERIMENTAL
-          </span>
-          <span>
-            BUILD 00.1 <span className="orange">+</span>
-          </span>
-        </footer>
-      </div>
-      <nav className="mobile-nav" aria-label="Navegação mobile">
-        {nav.map(({ id, mobile, icon: Icon }) => (
-          <button
-            key={id}
-            className={page === id ? 'active' : ''}
-            aria-current={page === id ? 'page' : undefined}
-            onClick={() => setPage(id)}
-          >
-            <Icon size={20} strokeWidth={1.5} />
-            <span>{mobile}</span>
-          </button>
-        ))}
-      </nav>
+        </UtilityDialog>
+      )}
       {toastNode}
     </div>
   );

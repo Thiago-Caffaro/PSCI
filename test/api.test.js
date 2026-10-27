@@ -261,6 +261,35 @@ test('fotos base64 são persistidas e retornadas para jogador e comando', async 
   assert.equal(remove.status, 200);
   assert.equal((await call('/session', { token: player.token })).data.user.character.photo, '');
 });
+test('habilidades livres podem ser salvas pelo jogador e editadas pelo comando', async () => {
+  const update = await call('/me', {
+    token: player.token,
+    method: 'PATCH',
+    body: { abilities: 'Pulso de reconhecimento.' },
+  });
+  assert.equal(update.status, 200);
+  assert.equal(update.data.user.character.abilities, 'Pulso de reconhecimento.');
+  const command = await call(`/admin/accounts/${player.snapshot.user.id}`, {
+    token: admin.token,
+    method: 'PATCH',
+    body: { character: { abilities: 'Protocolo de cobertura.' } },
+  });
+  assert.equal(command.status, 200);
+  const session = (await call('/session', { token: player.token })).data;
+  assert.equal(session.user.character.abilities, 'Protocolo de cobertura.');
+  assert.equal(session.user.character.attributes.agility, 3);
+  assert.equal(
+    (
+      await call('/me', {
+        token: player.token,
+        method: 'PATCH',
+        body: { abilities: 'a'.repeat(12001) },
+      })
+    ).status,
+    400,
+  );
+});
+
 test('dados malformados não alteram os valores da ficha', async () => {
   const result = await call(`/admin/accounts/${player.snapshot.user.id}`, {
     token: admin.token,

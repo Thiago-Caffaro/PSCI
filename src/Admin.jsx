@@ -27,6 +27,7 @@ function changedFields(original, next) {
     'intuitionNote',
     'notes',
     'equipment',
+    'abilities',
     'photo',
   ])
     if (original[key] !== next[key]) result[key] = next[key];
@@ -358,6 +359,21 @@ function AccountEditor({ account, schema, mutate, busy, disabled, selfId, notify
             );
           })}
         </div>
+        <section className="panel form-panel">
+          <div className="panel-heading">
+            <Radio size={17} />
+            <h3>Habilidades da unidade</h3>
+          </div>
+          <Field label="HABILIDADES" hint="Registro livre, sem aplicação automática de regras.">
+            <textarea
+              rows={5}
+              maxLength={12000}
+              value={draft.abilities || ''}
+              placeholder="Técnicas e habilidades da personagem..."
+              onChange={(event) => update('abilities', event.target.value)}
+            />
+          </Field>
+        </section>
         <details className="panel credentials-panel">
           <summary>
             REDEFINIR CREDENCIAIS <span>+</span>

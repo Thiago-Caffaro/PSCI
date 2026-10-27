@@ -190,11 +190,11 @@ export function createApp({
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) fail('Ficha inválida.');
     const result = structuredClone(character);
     if ('photo' in patch) result.photo = profilePhoto(patch.photo);
-    for (const field of ['notes', 'equipment']) {
+    for (const field of ['notes', 'equipment', 'abilities']) {
       if (field in patch)
         result[field] = textField(
           patch[field],
-          field === 'notes' ? 'Diário' : 'Equipamento',
+          { notes: 'Diário', equipment: 'Equipamento', abilities: 'Habilidades' }[field],
           12000,
         );
     }
@@ -226,7 +226,9 @@ export function createApp({
           ),
         );
     } else if (
-      Object.keys(patch).some((key) => !['vitals', 'notes', 'equipment', 'photo'].includes(key))
+      Object.keys(patch).some(
+        (key) => !['vitals', 'notes', 'equipment', 'abilities', 'photo'].includes(key),
+      )
     ) {
       fail('Atributos e identificação são editados pelo comando.', 403);
     }

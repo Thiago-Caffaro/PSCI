@@ -10,6 +10,7 @@ import '@fontsource/ibm-plex-mono/400.css';
 import '@fontsource/ibm-plex-mono/500.css';
 import App from './App.jsx';
 import './styles.css';
+import './tablet.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
