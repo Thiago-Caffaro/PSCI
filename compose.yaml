@@ -1,0 +1,21 @@
+name: psci
+
+services:
+  psci:
+    image: ${PSCI_IMAGE:-ghcr.io/thiago-caffaro/psci:latest}
+    restart: unless-stopped
+    init: true
+    ports:
+      - '${PSCI_BIND:-0.0.0.0}:${PSCI_PORT:-3001}:3001'
+    environment:
+      NODE_ENV: production
+      PORT: '3001'
+      HOST: 0.0.0.0
+      PSCI_DATA_FILE: /app/data/psci.json
+    volumes:
+      - psci-data:/app/data
+    stop_grace_period: 15s
+
+volumes:
+  psci-data:
+    name: psci-data

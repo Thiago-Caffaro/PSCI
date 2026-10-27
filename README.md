@@ -22,6 +22,12 @@ npm start
 
 Abra **http://localhost:3001**. `PORT`, `HOST` e `PSCI_DATA_FILE` podem ser definidos no ambiente. O arquivo `.env.example` documenta os valores; o projeto não carrega `.env` automaticamente. Exemplo em PowerShell: `$env:PORT = '3002'; npm start`.
 
+## Imagem e servidor
+
+O repositório [Thiago-Caffaro/PSCI](https://github.com/Thiago-Caffaro/PSCI) publica a imagem privada `ghcr.io/thiago-caffaro/psci:latest` para Linux amd64 e arm64. O GitHub Actions valida cada publicação; atualizações de `main` geram uma nova imagem.
+
+O [guia de implantação](DEPLOY.md) explica o login no GHCR, a execução com `compose.yaml`, atualizações e backup. O volume `psci-data` preserva o banco entre atualizações. O banco da campanha local fica fora do Git e da imagem.
+
 ## Contas iniciais
 
 | Acesso                  | Usuário     | Senha      |
@@ -105,6 +111,7 @@ npm test       # Integração da API
 npm run build # Build de produção
 npm run check # Sintaxe, integração e build
 npm run test:ui
+npm run test:container # Requer docker build -t psci:local .
 ```
 
 Os testes de navegador usam Microsoft Edge no Windows; nas demais plataformas, instale o Chromium do Playwright com `npx playwright install chromium`. A API de teste usa um banco temporário separado, sem alterar os dados da campanha. Screenshots de validação são gravados em `.qa/` e não entram no Git.
