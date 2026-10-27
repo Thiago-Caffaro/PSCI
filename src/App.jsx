@@ -10,6 +10,7 @@ import {
   EyeOff,
   Fingerprint,
   LogOut,
+  Pencil,
   Radio,
   Settings2,
   ShieldCheck,
@@ -30,6 +31,7 @@ import {
 import Admin from './Admin.jsx';
 import PhotoEditor from './PhotoEditor.jsx';
 import Tablet from './Tablet.jsx';
+import PlayerEditor from './PlayerEditor.jsx';
 
 function Login({ onLogin, notify }) {
   const [username, setUsername] = useState('');
@@ -314,7 +316,13 @@ function UtilityDialog({ page, onClose, children }) {
     <dialog
       ref={dialog}
       className="utility-dialog"
-      aria-label={page === 'admin' ? 'Painel de comando' : 'Configurações do terminal'}
+      aria-label={
+        page === 'admin'
+          ? 'Painel de comando'
+          : page === 'edit'
+            ? 'Editar minha ficha'
+            : 'Configurações do terminal'
+      }
       onCancel={(event) => {
         event.preventDefault();
         onClose();
@@ -325,8 +333,18 @@ function UtilityDialog({ page, onClose, children }) {
     >
       <div className="utility-topline">
         <span>
-          {page === 'admin' ? <Command size={17} /> : <Settings2 size={17} />}
-          {page === 'admin' ? 'PAINEL DE COMANDO' : 'CONFIGURAÇÕES DO TERMINAL'}
+          {page === 'admin' ? (
+            <Command size={17} />
+          ) : page === 'edit' ? (
+            <Pencil size={17} />
+          ) : (
+            <Settings2 size={17} />
+          )}
+          {page === 'admin'
+            ? 'PAINEL DE COMANDO'
+            : page === 'edit'
+              ? 'EDITAR MINHA FICHA'
+              : 'CONFIGURAÇÕES DO TERMINAL'}
         </span>
         <button className="icon-button" aria-label="Voltar ao tablet" onClick={onClose}>
           <X size={18} />
@@ -345,6 +363,7 @@ export default function App() {
   });
   const [status, setStatus] = useState('connecting');
   const [page, setPage] = useState('overview');
+  const [editSection, setEditSection] = useState(null);
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(false);
   const [effects, changeEffects] = useState(() => {
@@ -485,6 +504,17 @@ export default function App() {
           </span>
         </div>
         <nav className="device-header-actions" aria-label="Acesso ao terminal">
+          <button
+            aria-label="Editar minha ficha"
+            title="Editar minha ficha"
+            disabled={offline}
+            onClick={() => {
+              setEditSection(null);
+              setPage('edit');
+            }}
+          >
+            <Pencil size={17} />
+          </button>
           {user.role === 'admin' && (
             <button
               aria-label="Painel de comando"
@@ -526,10 +556,25 @@ export default function App() {
           busy={busy}
           mutate={mutate}
           onOpenSettings={() => setPage('system')}
+          onEdit={(section = null) => {
+            setEditSection(section);
+            setPage('edit');
+          }}
         />
       </main>
       {page !== 'overview' && (
         <UtilityDialog page={page} onClose={() => setPage('overview')}>
+          {page === 'edit' && (
+            <PlayerEditor
+              character={user.character}
+              schema={settings.schema}
+              initialSection={editSection}
+              mutate={mutate}
+              busy={busy}
+              offline={offline}
+              notify={notify}
+            />
+          )}
           {page === 'system' && (
             <TerminalSettings
               effects={effects}

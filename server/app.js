@@ -281,7 +281,26 @@ export function createApp({
     });
   });
   app.patch('/api/me', auth, (req, res) => {
-    req.account.character = patchCharacter(req.account.character, req.body, false);
+    const allowed = [
+      'vitals',
+      'notes',
+      'equipment',
+      'abilities',
+      'photo',
+      'name',
+      'model',
+      'affiliation',
+      'squad',
+      'designation',
+      'intuitionNote',
+      'attributes',
+      'skills',
+    ];
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body))
+      fail('Ficha inválida.');
+    if (Object.keys(req.body).some((key) => !allowed.includes(key)))
+      fail('Este campo não pertence à edição da sua ficha.', 403);
+    req.account.character = patchCharacter(req.account.character, req.body, true);
     req.account.updatedAt = new Date().toISOString();
     record(
       req.account.username,
@@ -290,7 +309,11 @@ export function createApp({
         ? 'Recursos de campo atualizados.'
         : 'photo' in req.body
           ? 'Foto de identificação atualizada.'
-          : 'Registros de campo atualizados.',
+          : req.body.attributes || req.body.skills
+            ? 'Parâmetros da unidade atualizados pelo operador.'
+            : req.body.name !== undefined || req.body.model !== undefined
+              ? 'Identificação atualizada pelo operador.'
+              : 'Registros de campo atualizados.',
     );
     commit();
     res.json(snapshot(req.account));

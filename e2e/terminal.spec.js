@@ -59,6 +59,10 @@ test('tablet mobile: virada, rascunhos, foto e permanência da sessão', async (
     0,
   );
   await expect(page.locator('.device-back')).toHaveAttribute('inert', '');
+  await expect(page.locator('.hp .tablet-meter > span')).toHaveCount(20);
+  await expect(page.locator('.energy .tablet-meter > span')).toHaveCount(10);
+  await expect(page.locator('.hp .tablet-meter > .filled')).toHaveCount(20);
+  await expect(page.locator('.damage-cross, .caption-cross')).toHaveCount(0);
   await assertNoOverflow(page);
   await page.screenshot({ path: '.qa/tablet-mobile-front.png' });
   await page.getByRole('button', { name: 'Detalhes de Conhecimento', exact: true }).click();
@@ -69,6 +73,7 @@ test('tablet mobile: virada, rascunhos, foto e permanência da sessão', async (
   await page.getByRole('button', { name: 'Fechar detalhes do atributo', exact: true }).click();
   await page.getByRole('button', { name: 'Diminuir Pontos de vida', exact: true }).click();
   await expect(page.locator('.hp .tablet-resource-value strong')).toHaveText('19');
+  await expect(page.locator('.hp .tablet-meter > .filled')).toHaveCount(19);
   await flip(page, true);
   await expect(page.locator('.device-front')).toHaveAttribute('inert', '');
   await page
@@ -241,7 +246,7 @@ test('dano afeta as duas imagens e a virada respeita movimento reduzido', async 
   const token = await page.evaluate(() => JSON.parse(localStorage.getItem('psci-session')).token);
   for (const [hp, level] of [
     [10, 'unstable'],
-    [4, 'critical'],
+    [2, 'critical'],
     [0, 'offline'],
   ]) {
     const update = await page.request.patch('/api/me', {
@@ -254,6 +259,7 @@ test('dano afeta as duas imagens e a virada respeita movimento reduzido', async 
     await expect(page.locator('.hp .tablet-resource-value strong')).toHaveText(
       String(hp).padStart(2, '0'),
     );
+    await expect(page.locator('.screen-fracture')).toHaveCount(hp <= 3 ? 2 : 0);
   }
   await expect(page.locator('.psci-device')).toHaveCSS('transition-duration', '0s');
   await page.screenshot({ path: '.qa/tablet-mobile-damage.png' });
@@ -268,4 +274,86 @@ test('dano afeta as duas imagens e a virada respeita movimento reduzido', async 
     await page.setViewportSize(viewport);
     await assertNoOverflow(page);
   }
+});
+
+test('jogador edita a própria ficha, usa Espaço e não vira enquanto digita', async ({
+  page,
+  browser,
+}) => {
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await playerLogin(page);
+  await dismissToast(page);
+  await page.locator('body').click({ position: { x: 3, y: 65 } });
+  await page.keyboard.press('Space');
+  await expect(page.locator('.psci-device')).toHaveAttribute('data-face', 'back');
+  await expect(page.locator('.psci-device')).not.toHaveClass(/is-turning/);
+  await page.getByLabel('Anotações de campo', { exact: true }).fill('Texto');
+  await page.keyboard.press('Space');
+  await page.keyboard.type('com espaço');
+  await expect(page.getByLabel('Anotações de campo', { exact: true })).toHaveValue(
+    'Texto com espaço',
+  );
+  await expect(page.locator('.psci-device')).toHaveAttribute('data-face', 'back');
+  await page.getByRole('button', { name: 'Virar tablet para a frente', exact: true }).focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('.psci-device')).toHaveAttribute('data-face', 'front');
+  await expect(page.locator('.psci-device')).not.toHaveClass(/is-turning/);
+  await page.getByRole('button', { name: 'Editar minha ficha', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: 'Editar minha ficha', exact: true });
+  await assertNoOverflow(page);
+  await page.setViewportSize({ width: 320, height: 720 });
+  await assertNoOverflow(page);
+  await expect(
+    editor.getByRole('button', { name: 'SALVAR MINHA FICHA', exact: true }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: '.qa/tablet-player-editor.png' });
+  await editor.getByLabel('NOME', { exact: true }).fill('Exploradora');
+  await editor.getByLabel('MODELO', { exact: true }).fill('R-12');
+  await editor.getByRole('spinbutton', { name: 'Base de Agilidade', exact: true }).fill('4');
+  await editor
+    .getByRole('spinbutton', { name: 'Constituição: Resistência', exact: true })
+    .fill('2');
+  await editor.getByRole('spinbutton', { name: 'Força: Luta', exact: true }).fill('3');
+  await page.screenshot({ path: '.qa/tablet-player-edit-attributes.png' });
+  await editor.getByRole('button', { name: 'SALVAR MINHA FICHA', exact: true }).click();
+  await expect(page.getByText('Ficha pessoal sincronizada.', { exact: true })).toBeVisible();
+  await expect(
+    editor.getByRole('button', { name: 'SALVAR MINHA FICHA', exact: true }),
+  ).toBeDisabled();
+  await page.getByRole('button', { name: 'Voltar ao tablet', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Exploradora', exact: true })).toBeVisible();
+  await expect(page.locator('.tablet-armor > strong')).toHaveText('14');
+  await expect(page.locator('.hp .tablet-resource-value > span')).toHaveText('/ 30');
+  await page.getByRole('button', { name: 'Detalhes de Força', exact: true }).click();
+  await page.getByRole('button', { name: 'EDITAR ATRIBUTO', exact: true }).click();
+  const contextual = page.getByRole('dialog', { name: 'Editar minha ficha', exact: true });
+  await contextual.getByRole('spinbutton', { name: 'Força: Luta', exact: true }).fill('4');
+  await contextual.getByRole('button', { name: 'SALVAR MINHA FICHA', exact: true }).click();
+  await expect(page.getByText('Ficha pessoal sincronizada.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Voltar ao tablet', exact: true }).click();
+  const commandContext = await browser.newContext();
+  try {
+    const command = await commandContext.newPage();
+    await command.goto('http://127.0.0.1:3101/');
+    await command.getByRole('button', { name: /^COMANDO/ }).click();
+    await command.getByRole('button', { name: 'Painel de comando', exact: true }).click();
+    await expect(command.locator('.editor-account-title h2')).toHaveText('Exploradora');
+    await expect(command.getByRole('spinbutton', { name: 'Força: Luta', exact: true })).toHaveValue(
+      '4',
+    );
+  } finally {
+    await commandContext.close();
+  }
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Exploradora', exact: true })).toBeVisible();
+  await assertNoOverflow(page);
+  const columns = await page
+    .locator('.tablet-attributes')
+    .evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length);
+  expect(columns).toBe(2);
+  await dismissToast(page);
+  await page.screenshot({ path: '.qa/tablet-larger-attributes.png' });
+  expect(errors).toEqual([]);
 });

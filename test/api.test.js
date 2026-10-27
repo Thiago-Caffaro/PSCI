@@ -83,7 +83,7 @@ test('login, sessão e permissões isolam contas de jogadores e credenciais', as
       await call('/me', {
         token: player.token,
         method: 'PATCH',
-        body: { attributes: { strength: 8 } },
+        body: { role: 'admin' },
       })
     ).status,
     403,
@@ -299,6 +299,48 @@ test('dados malformados não alteram os valores da ficha', async () => {
   assert.equal(result.status, 400);
   const session = (await call('/session', { token: player.token })).data;
   assert.equal(session.user.character.attributes.agility, 3);
+});
+
+test('jogador edita sua identificação e parâmetros sem alterar outra conta', async () => {
+  const before = (await call('/session', { token: admin.token })).data;
+  const another = before.accounts.find((account) => account.id === created.id);
+  const updated = await call('/me', {
+    token: player.token,
+    method: 'PATCH',
+    body: {
+      name: 'Minha unidade',
+      model: 'P-02',
+      squad: 'Exploração',
+      attributes: { strength: 2 },
+      skills: { fight: 3, perception: null },
+    },
+  });
+  assert.equal(updated.status, 200);
+  assert.equal(updated.data.user.character.name, 'Minha unidade');
+  assert.equal(updated.data.user.character.model, 'P-02');
+  assert.equal(updated.data.user.character.attributes.strength, 2);
+  assert.equal(updated.data.user.character.skills.fight, 3);
+  assert.equal(updated.data.user.character.skills.perception, null);
+  const after = (await call('/session', { token: admin.token })).data;
+  assert.deepEqual(
+    after.accounts.find((account) => account.id === created.id).character,
+    another.character,
+  );
+  assert.equal(
+    (await call('/me', { token: player.token, method: 'PATCH', body: { serial: 'FORJADO' } }))
+      .status,
+    403,
+  );
+  assert.equal(
+    (
+      await call(`/admin/accounts/${created.id}`, {
+        token: player.token,
+        method: 'PATCH',
+        body: { character: { name: 'Outra unidade' } },
+      })
+    ).status,
+    403,
+  );
 });
 test('redefinição de senha invalida sessões antigas da conta', async () => {
   const old = (await call('/login', { body: { username: 'teste02', password: 'senha02' } })).data;

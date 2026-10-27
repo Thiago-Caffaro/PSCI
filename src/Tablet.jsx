@@ -1,9 +1,10 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   Check,
   Fingerprint,
   Minus,
+  Pencil,
   Plus,
   Radio,
   Save,
@@ -207,9 +208,6 @@ function DamageDisplay({ ratio, children, kind, onClick }) {
         <i />
       </div>
       <div className="damage-static" aria-hidden="true" />
-      <span className="damage-cross" aria-hidden="true">
-        +
-      </span>
       <span className="damage-signal">
         {ratio === 0 ? 'SEM SINAL' : `SINAL ${Math.round(ratio * 100)}%`}
       </span>
@@ -268,15 +266,23 @@ function Resource({ id, value, max, onChange, disabled }) {
         aria-valuemax={Math.max(0, max)}
         aria-valuenow={value}
       >
-        <span
-          style={{ width: `${Math.max(0, Math.min(100, (value / Math.max(1, max)) * 100))}%` }}
-        />
+        {Array.from({ length: id === 'hp' ? 20 : 10 }, (_, index) => (
+          <span
+            aria-hidden="true"
+            key={index}
+            className={
+              index < (Math.max(0, value) / Math.max(1, max)) * (id === 'hp' ? 20 : 10)
+                ? 'filled'
+                : ''
+            }
+          />
+        ))}
       </div>
     </section>
   );
 }
 
-function AttributeDetail({ group, character, index, onClose }) {
+function AttributeDetail({ group, character, index, onClose, onEdit, disabled }) {
   const dialog = useRef();
   useEffect(() => {
     dialog.current.showModal();
@@ -298,6 +304,17 @@ function AttributeDetail({ group, character, index, onClose }) {
         </button>
       </div>
       <AttributeCard group={group} character={character} index={index} />
+      <button
+        className="button secondary detail-edit"
+        disabled={disabled}
+        onClick={() => {
+          onClose();
+          onEdit(group.id);
+        }}
+      >
+        <Pencil size={15} />
+        EDITAR ATRIBUTO
+      </button>
       <p className="detail-note">
         Valores individuais. O atributo base não é somado automaticamente.
         {group.skills.some((skill) => skill.id === 'intuition') && character.intuitionNote
@@ -308,7 +325,55 @@ function AttributeDetail({ group, character, index, onClose }) {
   );
 }
 
-export default function Tablet({ user, settings, status, effects, busy, mutate, onOpenSettings }) {
+function ScreenDamage({ ratio }) {
+  if (ratio > 0.15) return null;
+  const fractures = [
+    'M355 270 318 224 305 166 258 111 249 37 226 0M355 270 372 209 414 169 422 113 488 40 510 0M355 270 434 249 477 218 560 209M355 270 402 314 417 365 493 411 560 429M355 270 338 342 353 406 307 481 306 560 283 650 302 760M355 270 281 291 234 268 158 286 111 258 44 269 0 250',
+    'M318 224 278 220 253 185M305 166 341 140 344 101M414 169 374 156 365 120M402 314 454 325 477 356M353 406 400 440 412 485M307 481 255 470 221 437M234 268 206 222 165 205M111 258 107 206 68 171',
+    'M45 68 77 100 64 143 97 187M77 100 135 115 166 151M77 100 90 46 118 15M77 100 32 108 0 139M77 100 58 42 39 0',
+  ];
+  return (
+    <div
+      className="screen-damage"
+      aria-hidden="true"
+      style={{ '--fracture-opacity': 0.3 + (1 - ratio / 0.15) * 0.2 }}
+    >
+      <svg className="screen-fracture" viewBox="0 0 560 760" preserveAspectRatio="none">
+        <g fill="none" strokeLinejoin="bevel">
+          <g stroke="#070e0b" strokeWidth="2.5">
+            {fractures.map((path, index) => (
+              <path d={path} key={index} />
+            ))}
+          </g>
+          <g stroke="#d2ddc7" strokeWidth=".85" transform="translate(.8 -.6)">
+            {fractures.map((path, index) => (
+              <path d={path} key={index} />
+            ))}
+          </g>
+        </g>
+        <g fill="#d3dec4" opacity=".13">
+          <path d="m355 270 47 44-64 28ZM77 100l58 15-71 28Z" />
+        </g>
+      </svg>
+      <span className="lcd-faults">
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  );
+}
+
+export default function Tablet({
+  user,
+  settings,
+  status,
+  effects,
+  busy,
+  mutate,
+  onOpenSettings,
+  onEdit,
+}) {
   const { character } = user;
   const [back, setBack] = useState(false);
   const [turning, setTurning] = useState(false);
@@ -389,7 +454,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
       );
     }
   }
-  function flip() {
+  const flip = useCallback(() => {
     if (turning) return;
     hasFlipped.current = true;
     setTurning(true);
@@ -402,7 +467,34 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
       },
       animated ? 850 : 0,
     );
-  }
+  }, [turning, effects]);
+  useEffect(() => {
+    function spaceToFlip(event) {
+      if (
+        (event.code !== 'Space' && event.key !== ' ') ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.isComposing
+      )
+        return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (
+        document.querySelector('dialog[open]') ||
+        target?.closest(
+          'input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="combobox"]',
+        )
+      )
+        return;
+      if (target?.closest('button,a,summary,[role="button"]') && !target.closest('.tablet-flip'))
+        return;
+      event.preventDefault();
+      if (!event.repeat) flip();
+    }
+    window.addEventListener('keydown', spaceToFlip);
+    return () => window.removeEventListener('keydown', spaceToFlip);
+  }, [flip]);
   const { maxHp, maxEnergy, ac } = getVitals(character);
   const ratio = Math.max(0, Math.min(1, character.vitals.hp / Math.max(1, maxHp)));
   const offline = status !== 'online';
@@ -415,7 +507,6 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
     <>
       <div className="tablet-layout">
         <aside className="device-caption">
-          <span className="caption-cross">+</span>
           <span className="device-caption-code">
             PERSONAL
             <br />
@@ -437,6 +528,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
             className={`psci-device ${back ? 'is-flipped' : ''} ${turning ? 'is-turning' : ''}`}
             ref={device}
             data-face={back ? 'back' : 'front'}
+            data-screen-damage={ratio <= 0.15 ? 'fractured' : 'stable'}
             style={{ '--hp-ratio': ratio }}
           >
             <section
@@ -495,6 +587,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
                 </dl>
               </header>
               <div className="front-main-screen">
+                <ScreenDamage ratio={ratio} />
                 <div className="tablet-screen-topline">
                   <span>
                     <i className={`status-dot ${offline ? 'warning' : ''}`} />
@@ -528,7 +621,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
                 <div className="tablet-matrix-heading">
                   <h2>ATRIBUTOS / PERÍCIAS</h2>
                   <span>
-                    TOQUE PARA EXPANDIR <ArrowUpRight size={9} />
+                    DESLIZE / TOQUE PARA EXPANDIR <ArrowUpRight size={9} />
                   </span>
                 </div>
                 <div className="tablet-attributes">
@@ -585,6 +678,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
               <Housing back />
               <FlipButton back onClick={flip} disabled={turning} />
               <div className="back-main-screen">
+                <ScreenDamage ratio={ratio} />
                 <div className="back-screen-heading">
                   <span className="tablet-micro">MEMÓRIA DE EXPEDIÇÃO</span>
                   <span className={`draft-status ${dirty ? 'unsaved' : ''}`}>
@@ -704,7 +798,7 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
           <i className={back ? 'active' : ''} />
           {back ? 'VERSO / MEMÓRIA DE CAMPO' : 'FRENTE / IDENTIDADE OPERACIONAL'}
         </span>
-        <span>PRESSIONE A SETA PARA VIRAR O TERMINAL</span>
+        <span>SETA OU ESPAÇO PARA VIRAR O TERMINAL</span>
       </div>
       <div className="tablet-broadcast">
         <Radio size={12} />
@@ -716,6 +810,8 @@ export default function Tablet({ user, settings, status, effects, busy, mutate, 
           character={character}
           index={settings.schema.findIndex((item) => item.id === group.id)}
           onClose={() => setDetail(null)}
+          onEdit={onEdit}
+          disabled={offline}
         />
       )}
     </>
